@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>For You ❤️</title>
+
+  <style>
+    :root {
+      --bg-1: #06050b;
+      --bg-2: #120d1d;
+      --bg-3: #1a1024;
+      --pink: #ff76a8;
+      --pink-soft: #ffb6cf;
+      --rose: #ff4f8f;
+      --white-soft: rgba(255,255,255,0.88);
+      --white-dim: rgba(255,255,255,0.68);
+      --glass: rgba(255,255,255,0.08);
+      --glass-strong: rgba(255,255,255,0.12);
+      --shadow: 0 20px 60px rgba(0,0,0,0.35);
+      --radius-xl: 32px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: "Georgia", "Times New Roman", serif;
+      min-height: 100vh;
+      color: white;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(255, 125, 170, 0.12), transparent 20%),
+        radial-gradient(circle at 80% 20%, rgba(180, 120, 255, 0.10), transparent 22%),
+        radial-gradient(circle at 50% 80%, rgba(255, 120, 200, 0.08), transparent 28%),
+        linear-gradient(180deg, var(--bg-1), var(--bg-2) 45%, var(--bg-3));
+    }
+
+    body.locked {
+      overflow: hidden;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .cursor-glow {
+      position: fixed;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+      background: radial-gradient(circle, rgba(255,118,168,0.16), rgba(255,118,168,0.05) 40%, transparent 70%);
+      transform: translate(-50%, -50%);
+      mix-blend-mode: screen;
+      filter: blur(12px);
+    }
+
+    .stars,
+    .hearts,
+    .sparkles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .stars {
+      z-index: 0;
+    }
+
+    .hearts {
+      z-index: 2;
+    }
+
+    .sparkles {
+      z-index: 2;
+    }
+
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: rgba(255,255,255,0.8);
+      border-radius: 50%;
+      animation: twinkle 4s infinite ease-in-out;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.15; transform: scale(1); }
+      50% { opacity: 0.95; transform: scale(1.8); }
+    }
+
+    .floating-heart {
+      position: absolute;
+      bottom: -40px;
+      color: rgba(255, 110, 160, 0.24);
+      animation: rise 9s linear forwards;
+      user-select: none;
+    }
+
+    @keyframes rise {
+      0% {
+        transform: translateY(0) scale(0.8) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-120vh) scale(1.3) rotate(18deg);
+        opacity: 0;
+      }
+    }
+
+    .spark {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.95), rgba(255,190,220,0.65), transparent 75%);
+      animation: sparkleUp 5s linear forwards;
+      opacity: 0;
+    }
+
+    @keyframes sparkleUp {
+      0% {
+        transform: translateY(0) scale(0.7);
+        opacity: 0;
+      }
+      15% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-90vh) scale(1.4);
+        opacity: 0;
+      }
+    }
+
+    .intro-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at center, rgba(255,118,168,0.12), transparent 24%),
+        linear-gradient(180deg, rgba(5,4,10,0.96), rgba(14,10,22,0.98));
+      text-align: center;
+      transition: opacity 1s ease, visibility 1s ease;
+    }
+
+    .intro-screen.hide {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .intro-card {
+      width: 100%;
+      max-width: 780px;
+      padding: 42px 24px;
+      border-radius: 34px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.10);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+    }
+
+    .intro-overline {
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      color: var(--white-dim);
+      margin-bottom: 14px;
+    }
+
+    .intro-card h1 {
+      font-size: clamp(2.3rem, 7vw, 4.8rem);
+      line-height: 1.08;
+      margin-bottom: 18px;
+    }
+
+    .intro-card p {
+      max-width: 620px;
+      margin: 0 auto 28px;
+      font-size: 1.08rem;
+      line-height: 1.95;
+      color: var(--white-soft);
+    }
+
+    .main-btn,
+    .ghost-btn,
+    .mini-btn {
+      border: none;
+      cursor: pointer;
+      color: white;
+      font-family: inherit;
+      transition: transform 0.25s ease, opacity 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .main-btn {
+      padding: 15px 30px;
+      border-radius: 999px;
+      font-size: 1rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--rose), var(--pink));
+      box-shadow: 0 10px 28px rgba(255, 95, 149, 0.34);
+    }
+
+    .ghost-btn {
+      padding: 12px 22px;
+      border-radius: 999px;
+      font-size: 0.98rem;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(10px);
+    }
+
+    .mini-btn {
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .main-btn:active,
+    .ghost-btn:active,
+    .mini-btn:active {
+      transform: scale(0.97);
+    }
+
+    .top-controls {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 30;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .site {
+      position: relative;
+      z-index: 5;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 1.2s ease, transform 1.2s ease;
+    }
+
+    .site.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    section {
+      width: 100%;
+      position: relative;
+    }
+
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 110px 18px 70px;
+    }
+
+    .hero-inner {
+      width: 100%;
+      max-width: 1100px;
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .glass-card {
+      background: var(--glass);
+      border: 1px solid rgba(255,255,255,0.10);
+      backdrop-filter: blur(14px);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-text {
+      padding: 38px 28px;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      font-size: 0.82rem;
+      color: var(--white-dim);
+      margin-bottom: 18px;
+      letter-spacing: 1px;
+    }
+
+    .hero-text h2 {
+      font-size: clamp(2.2rem, 6vw, 4.8rem);
+      line-height: 1.05;
+      margin-bottom: 16px;
+    }
+
+    .hero-text p {
+      font-size: 1.08rem;
+      line-height: 1.95;
+      color: var(--white-soft);
+      margin-bottom: 22px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .photo-frame {
+      padding: 16px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .photo-frame::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent 40%, rgba(255,118,168,0.08));
+      pointer-events: none;
+    }
+
+    .photo-frame img {
+      width: 100%;
+      display: block;
+      border-radius: 24px;
+      object-fit: cover;
+      max-height: 76vh;
+      filter: blur(16px) brightness(0.82);
+      transform: scale(1.04);
+      transition: filter 1.8s ease, transform 1.8s ease;
+    }
+
+    .photo-frame img.revealed {
+      filter: blur(0) brightness(1);
+      transform: scale(1);
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 22px;
+      padding: 0 18px;
+    }
+
+    .section-title small {
+      display: block;
+      color: var(--white-dim);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .section-title h3 {
+      font-size: clamp(1.8rem, 5vw, 3.2rem);
+      line-height: 1.15;
+    }
+
+    .letter-section {
+      padding: 30px 18px 90px;
+    }
+
+    .letter-card {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 34px 24px;
+      min-height: 320px;
+    }
+
+    .typed-text {
+      font-size: 1.08rem;
+      line-height: 2.02;
+      color: var(--white-soft);
+      white-space: pre-line;
+      min-height: 220px;
+    }
+
+    .memory-section {
+      padding: 10px 18px 90px;
+    }
+
+    .memory-grid {
+      max-width: 1050px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .memory-box {
+      padding: 24px 20px;
+      min-height: 200px;
+      border-radius: var(--radius-lg);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: var(--shadow);
+      transform: translateY(24px);
+      opacity: 0;
+      transition: all 0.9s ease;
+    }
+
+    .memory-box.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .memory-box .icon {
+      font-size: 1.6rem;
+      margin-bottom: 14px;
+    }
+
+    .memory-box h4 {
+      font-size: 1.25rem;
+      margin-bottom: 10px;
+    }
+
+    .memory-box p {
+      color: var(--white-soft);
+      line-height: 1.85;
+      font-size: 1rem;
+    }
+
+    .reveal-section {
+      padding: 10px 18px 90px;
+    }
+
+    .reveal-card {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 34px 24px;
+      text-align: center;
+    }
+
+    .reveal-card p {
+      max-width: 760px;
+      margin: 0 auto 18px;
+      line-height: 1.9;
+      color: var(--white-soft);
+      font-size: 1.05rem;
+    }
+
+    .reveal-box {
+      margin-top: 18px;
+      display: none;
+      padding: 22px 18px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      font-size: 1.08rem;
+      line-height: 1.95;
+      color: var(--white-soft);
+    }
+
+    .reveal-box.show {
+      display: block;
+      animation: fadeUp 0.7s ease;
+    }
+
+    .quotes-section {
+      padding: 10px 18px 100px;
+    }
+
+    .quotes-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    .quote-card {
+      padding: 26px 22px;
+      border-radius: 26px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: var(--shadow);
+    }
+
+    .quote-card p {
+      font-size: 1.08rem;
+      line-height: 1.95;
+      color: var(--white-soft);
+    }
+
+    .quote-card span {
+      display: block;
+      margin-top: 14px;
+      color: var(--pink-soft);
+      font-size: 0.96rem;
+    }
+
+    .end-section {
+      padding: 20px 18px 110px;
+    }
+
+    .end-card {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 38px 24px;
+      text-align: center;
+    }
+
+    .end-card h3 {
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      line-height: 1.12;
+      margin-bottom: 16px;
+    }
+
+    .end-card p {
+      max-width: 720px;
+      margin: 0 auto 24px;
+      font-size: 1.08rem;
+      line-height: 1.95;
+      color: var(--white-soft);
+    }
+
+    .signature {
+      margin-top: 22px;
+      color: var(--pink-soft);
+      font-size: 1rem;
+      letter-spacing: 1px;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .scroll-tip {
+      margin-top: 16px;
+      font-size: 0.94rem;
+      color: var(--white-dim);
+    }
+
+    @media (max-width: 900px) {
+      .hero-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .memory-grid,
+      .quotes-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        padding-top: 90px;
+      }
+
+      .hero-text,
+      .letter-card,
+      .reveal-card,
+      .end-card {
+        padding: 28px 18px;
+      }
+
+      .typed-text,
+      .end-card p,
+      .hero-text p {
+        font-size: 1rem;
+      }
+
+      .cursor-glow {
+        width: 220px;
+        height: 220px;
+      }
+    }
+  </style>
+</head>
+<body class="locked">
+
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <div class="stars" id="stars"></div>
+  <div class="hearts" id="hearts"></div>
+  <div class="sparkles" id="sparkles"></div>
+
+  <div class="intro-screen" id="introScreen">
+    <div class="intro-card">
+      <div class="intro-overline">something soft. something beautiful.</div>
+      <h1>For the one<br>who stays in my heart ❤️</h1>
+      <p>
+        This is not just a page. It is a little world made with feelings,
+        memories, tenderness, and all the quiet love I wanted to place somewhere beautiful.
+      </p>
+      <button class="main-btn" id="enterSiteBtn">Open this little world</button>
+    </div>
+  </div>
+
+  <div class="top-controls hidden" id="topControls">
+    <button class="mini-btn" id="musicToggleBtn">Pause music ⏸</button>
+    <button class="mini-btn" id="scrollTopBtn">Top ↑</button>
+  </div>
+
+  <main class="site" id="site">
+
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-text glass-card">
+          <div class="hero-badge">A romantic page made only for you</div>
+          <h2>Some people are beautiful.<br>Some people feel like home.</h2>
+          <p>
+            And then there are people like you… the kind who become a thought,
+            a feeling, a comfort, and a favorite place in someone’s heart all at once.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#letterSection"><button class="main-btn">Read my heart</button></a>
+            <a href="#memorySection"><button class="ghost-btn">See the little things</button></a>
+          </div>
+
+          <div class="scroll-tip">Scroll slowly ✨</div>
+        </div>
+
+        <div class="photo-frame glass-card">
+          <img src="Photo.JPG" alt="Us" id="mainPhoto" />
+        </div>
+      </div>
+    </section>
+
+    <section class="letter-section" id="letterSection">
+      <div class="section-title">
+        <small>words</small>
+        <h3>A letter that feels like you</h3>
+      </div>
+
+      <div class="letter-card glass-card">
+        <div class="typed-text" id="typedText"></div>
+      </div>
+    </section>
+
+    <section class="memory-section" id="memorySection">
+      <div class="section-title">
+        <small>little things</small>
+        <h3>What I love the most</h3>
+      </div>
+
+      <div class="memory-grid">
+        <div class="memory-box">
+          <div class="icon">💗</div>
+          <h4>Your presence</h4>
+          <p>
+            There is something in your presence that softens my heart and makes everything feel lighter,
+            warmer, and more alive.
+          </p>
+        </div>
+
+        <div class="memory-box">
+          <div class="icon">✨</div>
+          <h4>Your energy</h4>
+          <p>
+            You have that rare kind of energy that stays with someone. Even after moments pass,
+            the feeling of you remains.
+          </p>
+        </div>
+
+        <div class="memory-box">
+          <div class="icon">🌙</div>
+          <h4>Your place in me</h4>
+          <p>
+            Some people come and go. But some people become part of the way we feel,
+            dream, and remember. You are that for me.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal-section">
+      <div class="section-title">
+        <small>one more thing</small>
+        <h3>Tap to reveal something sweet</h3>
+      </div>
+
+      <div class="reveal-card glass-card">
+        <p>
+          There is always more I want to say, more tenderness I want to leave for you,
+          more feelings I wish I could place right into your hands.
+        </p>
+        <button class="main-btn" id="revealBtn">Reveal it ❤️</button>
+
+        <div class="reveal-box" id="revealBox">
+          If I had one quiet wish, it would be this:
+          to always remain a beautiful feeling in your heart,
+          the same way you have become one in mine.
+        </div>
+      </div>
+    </section>
+
+    <section class="quotes-section">
+      <div class="section-title">
+        <small>feelings</small>
+        <h3>Pieces of love</h3>
+      </div>
+
+      <div class="quotes-wrap">
+        <div class="quote-card">
+          <p>
+            You are one of those rare people who do not just enter a life…
+            they change the atmosphere of it.
+          </p>
+          <span>— and that is exactly what you did to mine</span>
+        </div>
+
+        <div class="quote-card">
+          <p>
+            Some hearts are loud. Some hearts are quiet.
+            Mine becomes both whenever it thinks of you.
+          </p>
+          <span>— soft, restless, and full at the same time</span>
+        </div>
+
+        <div class="quote-card">
+          <p>
+            If affection could become a place, I think it would feel like being close to you.
+          </p>
+          <span>— warm, safe, and unforgettable</span>
+        </div>
+
+        <div class="quote-card">
+          <p>
+            Loving someone is beautiful.
+            But feeling peace because of them is something even deeper.
+          </p>
+          <span>— that is what you mean to me</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="end-section">
+      <div class="end-card glass-card">
+        <h3>And if you ask me what this is…</h3>
+        <p>
+          It is admiration. It is affection. It is softness.
+          It is all the beautiful things I wanted to gather and leave here in one place.
+          Just so, for a moment, you could open it and feel how deeply cherished you are.
+        </p>
+
+        <button class="ghost-btn" id="finalHeartBtn">Send one more heart</button>
+        <div class="signature">Made with love, only for you.</div>
+      </div>
+    </section>
+
+  </main>
+
+  <audio id="bgMusic" loop>
+    <source src="Music.m4a" type="audio/mp4" />
+  </audio>
+
+  <script>
+    const introScreen = document.getElementById("introScreen");
+    const enterSiteBtn = document.getElementById("enterSiteBtn");
+    const site = document.getElementById("site");
+    const bgMusic = document.getElementById("bgMusic");
+    const musicToggleBtn = document.getElementById("musicToggleBtn");
+    const scrollTopBtn = document.getElementById("scrollTopBtn");
+    const topControls = document.getElementById("topControls");
+    const mainPhoto = document.getElementById("mainPhoto");
+    const typedText = document.getElementById("typedText");
+    const revealBtn = document.getElementById("revealBtn");
+    const revealBox = document.getElementById("revealBox");
+    const finalHeartBtn = document.getElementById("finalHeartBtn");
+    const heartsContainer = document.getElementById("hearts");
+    const sparklesContainer = document.getElementById("sparkles");
+    const starsContainer = document.getElementById("stars");
+    const cursorGlow = document.getElementById("cursorGlow");
+    const memoryBoxes = document.querySelectorAll(".memory-box");
+
+    const letterMessage = `There are some people who do not just become part of a day...
+they become part of a feeling.
+
+You are that kind of person to me.
+
+You are the softness that stays after the moment ends.
+The thought that returns without effort.
+The warmth that lingers in the heart long after everything gets quiet.
+
+I wanted to make something that did not feel ordinary.
+Something gentle. Something romantic.
+Something that feels a little more like what you are to me.
+
+Because some feelings deserve more than just words.
+They deserve a place.
+And this page is one small place where I wanted to leave mine for you.`;
+
+    let typingStarted = false;
+    let heartsStarted = false;
+    let sparklesStarted = false;
+    let musicStarted = false;
+
+    function createStars() {
+      for (let i = 0; i < 90; i++) {
+        const star = document.createElement("span");
+        star.className = "star";
+        star.style.left = Math.random() * 100 + "%";
+        star.style.top = Math.random() * 100 + "%";
+        star.style.animationDelay = (Math.random() * 4) + "s";
+        star.style.animationDuration = (2.5 + Math.random() * 4) + "s";
+        star.style.opacity = Math.random();
+        starsContainer.appendChild(star);
+      }
+    }
+
+    function createHeart() {
+      const heart = document.createElement("div");
+      heart.className = "floating-heart";
+      heart.innerHTML = "❤";
+      heart.style.left = Math.random() * 100 + "%";
+      heart.style.fontSize = (14 + Math.random() * 20) + "px";
+      heart.style.animationDuration = (7 + Math.random() * 5) + "s";
+      heartsContainer.appendChild(heart);
+
+      setTimeout(() => {
+        heart.remove();
+      }, 12000);
+    }
+
+    function createSpark() {
+      const spark = document.createElement("div");
+      spark.className = "spark";
+      spark.style.left = Math.random() * 100 + "%";
+      spark.style.bottom = "-10px";
+      spark.style.animationDuration = (3.8 + Math.random() * 2.2) + "s";
+      sparklesContainer.appendChild(spark);
+
+      setTimeout(() => {
+        spark.remove();
+      }, 7000);
+    }
+
+    function typeWriter(text, element, speed = 26) {
+      let index = 0;
+
+      function type() {
+        if (index < text.length) {
+          element.textContent += text.charAt(index);
+          index++;
+          setTimeout(type, speed);
+        }
+      }
+
+      type();
+    }
+
+    function startFloatingHearts() {
+      if (heartsStarted) return;
+      heartsStarted = true;
+      setInterval(createHeart, 520);
+    }
+
+    function startSparkles() {
+      if (sparklesStarted) return;
+      sparklesStarted = true;
+      setInterval(createSpark, 900);
+    }
+
+    function revealPhoto() {
+      setTimeout(() => {
+        mainPhoto.classList.add("revealed");
+      }, 900);
+    }
+
+    function startTypingWhenVisible() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !typingStarted) {
+            typingStarted = true;
+            typeWriter(letterMessage, typedText, 23);
+          }
+        });
+      }, { threshold: 0.25 });
+
+      observer.observe(document.getElementById("letterSection"));
+    }
+
+    function animateMemoryBoxes() {
+      const boxObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry, i) => {
+          if (entry.isIntersecting) {
+            setTimeout(() => {
+              entry.target.classList.add("show");
+            }, i * 150);
+          }
+        });
+      }, { threshold: 0.2 });
+
+      memoryBoxes.forEach(box => boxObserver.observe(box));
+    }
+
+    function moveGlow(x, y) {
+      cursorGlow.style.left = x + "px";
+      cursorGlow.style.top = y + "px";
+    }
+
+    document.addEventListener("mousemove", (e) => {
+      moveGlow(e.clientX, e.clientY);
+    });
+
+    document.addEventListener("touchmove", (e) => {
+      if (e.touches[0]) {
+        moveGlow(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: true });
+
+    enterSiteBtn.addEventListener("click", async () => {
+      introScreen.classList.add("hide");
+      site.classList.add("show");
+      topControls.classList.remove("hidden");
+      document.body.classList.remove("locked");
+
+      revealPhoto();
+      startFloatingHearts();
+      startSparkles();
+
+      if (!musicStarted) {
+        musicStarted = true;
+        try {
+          await bgMusic.play();
+        } catch (err) {
+          console.log("Autoplay blocked until another interaction.");
+        }
+      }
+    });
+
+    musicToggleBtn.addEventListener("click", async () => {
+      if (bgMusic.paused) {
+        try {
+          await bgMusic.play();
+          musicToggleBtn.textContent = "Pause music ⏸";
+        } catch (err) {}
+      } else {
+        bgMusic.pause();
+        musicToggleBtn.textContent = "Play music ▶";
+      }
+    });
+
+    scrollTopBtn.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    revealBtn.addEventListener("click", () => {
+      revealBox.classList.add("show");
+      for (let i = 0; i < 10; i++) {
+        setTimeout(createHeart, i * 120);
+      }
+    });
+
+    finalHeartBtn.addEventListener("click", () => {
+      for (let i = 0; i < 24; i++) {
+        setTimeout(() => {
+          createHeart();
+          createSpark();
+        }, i * 90);
+      }
+    });
+
+    createStars();
+    startTypingWhenVisible();
+    animateMemoryBoxes();
+  </script>
+</body>
+</html>
